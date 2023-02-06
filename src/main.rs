@@ -8,38 +8,10 @@ use std::path;
 use std::env;
 use std::fs;
 use std::process::exit;
-use std::collections::HashMap;
 
-
-// ELF Header Sizes
-
-const ELF_FILE_HEADER_LENGTH: [u8; 2] = [0x34, 0x40];
-
-
-// Generic ELF information offsets.
-
-const ELF_MAGIC_NUMBER: &[u8] = &[0x7F,0x45,0x4C,0x46];
-const ELF_ARCH_OFFSET: u8 = 0x04;       // x86 or x64 indiicator; 1 byte
-const ELF_ENDIAN_OFFSET: u8 = 0x05;     // Endian offset (1 - little, 2 - big); 1 byte
-const ELF_ABI_OFFSET: u8 = 0x07;        // ABI identifier; 1 byte
-const ELF_TYPE_OFFSET: u8 = 0x10;       // Object type identifier; 2 bytes
-const ELF_MACHINE_OFFSET: u8 = 0x12;    // Instruction set type; 2 bytes
-
-
-// Offsets for file header entry points and table inforamtion.
-// Arrayed offset are split by architecture:
-//      0 : x86
-//      1 : x86_64
-
-const ELF_ENTRYPOINT_OFFSET: u8 = 0x18;
-const ELF_PHOFF_OFFSET: [u8; 2] = [0x1C, 0x20];        // Program header table pointer; 2 bytes
-const ELF_SHOFF_OFFSET: [u8; 2] = [0x20, 0x28];        // Section table pointer; 2 bytes
-const ELF_EHSIZE_OFFSET: [u8; 2] = [0x28, 0x34];       // Program header table entry size pointer; 2 bytes
-const ELF_PHENTSIZE_OFFSET: [u8; 2] = [0x28, 0x34];    // Section table pointer; 2 bytes
-const ELF_PHNUM_OFFSET: [u8; 2] = [0x2C, 0x38];        // Program header table number of entries pointer; 2 bytes
-const ELF_SHENTSIZE_OFFSET: [u8; 2] = [0x2E, 0x3A];    // Size of section header table; 2 bytes
-const ELF_SHNUM_OFFSET: [u8; 2] = [0x30, 0x3C];        // Number of entries in section table pointer; 2 bytes
-const ELF_SHSTRNDX_OFFSET: [u8; 2] = [0x32, 0x3E];     // Index of section header that contains names; 2 bytes
+// Import modules
+mod elf;
+mod util;
 
 
 fn main() {
@@ -49,14 +21,14 @@ fn main() {
     // Grab our filepath from our options
     if &args.len() < &2 {
         // No file given, terminate
-        println!("[Error] Please provied a file to open...");
+        println!("[Error] Please provide a filepath to open");
         exit(0);
     }
 
     let file_path: &String = &args[1];
     
     if path::Path::new(file_path).exists() {
-        println!("File exists, reading '{}'", file_path);
+        println!("File exists, reading '{}'...", file_path);
         
         let contents: Result<Vec<u8>, std::io::Error> = fs::read(file_path);
         
@@ -64,16 +36,18 @@ fn main() {
             let bytes: &Vec<u8> = &contents.expect("");
             let magic_num: &[u8] = &bytes[0..4];
         
-            if magic_num == ELF_MAGIC_NUMBER {
+            if magic_num == elf::MAGIC_NUMBER {
                 println!("Found ELF Magic Number...");
                 println!("Parsing File Header...");
 
                 // Build the File Header data structure
-                let file_header_map = build_fild_header(bytes);
+                let file_header: elf::FileHeader = build_file_header(bytes);
 
-                for (key, value) in &file_header_map {
-                    println!("{}: {}", key, value);
-                }
+                // Build Program Header data structure
+                //let program_header: elf::ProgramHeader = build_program_header(bytes, file_header.is_x86_64);
+                
+                println!("{:?}", file_header);
+                //println!("{:?}", program_header);
 
             } else {
                 println!("[Error] Could not find magic number, is this an ELF executable?")
@@ -88,29 +62,44 @@ fn main() {
 }
 
 
-fn build_fild_header(data: &Vec<u8>) -> HashMap<String, u8>{
-    let mut file_header: HashMap<String, u8> = HashMap::new();
+fn build_file_header(data: &Vec<u8>) -> elf::FileHeader {
     
     // Determine x86 or x64 architecture
     // 0 : x86
     // 1 : x64
-    let arch: u8 = (data[ELF_ARCH_OFFSET as usize] - 1).into();
+    let arch: usize = (data[elf::ARCH_OFFSET as usize] - 1).into();
 
-    file_header.insert("e_arch".to_string(), data[ELF_ARCH_OFFSET as usize]);
-    file_header.insert("e_endian".to_string(), data[ELF_ENDIAN_OFFSET as usize]);
-    file_header.insert("e_abi".to_string(), data[ELF_ABI_OFFSET as usize]);
-    file_header.insert("e_type".to_string(), data[ELF_TYPE_OFFSET as usize]);
-    file_header.insert("e_machine".to_string(), data[ELF_MACHINE_OFFSET as usize]);
-
-    file_header.insert("e_entry".to_string(), data[ELF_ENTRYPOINT_OFFSET as usize]);
-    file_header.insert("e_phoff".to_string(), data[ELF_PHOFF_OFFSET[arch as usize] as usize]);
-    file_header.insert("e_shoff".to_string(), data[ELF_SHOFF_OFFSET[arch as usize] as usize]);
-    file_header.insert("e_ehsize".to_string(), data[ELF_EHSIZE_OFFSET[arch as usize] as usize]);
-    file_header.insert("e_phentsize".to_string(), data[ELF_PHENTSIZE_OFFSET[arch as usize] as usize]);
-    file_header.insert("e_phnum".to_string(), data[ELF_PHNUM_OFFSET[arch as usize] as usize]);
-    file_header.insert("e_shentsize".to_string(), data[ELF_SHENTSIZE_OFFSET[arch as usize] as usize]);
-    file_header.insert("e_shnum".to_string(), data[ELF_SHNUM_OFFSET[arch as usize] as usize]);
-    file_header.insert("e_shstrndx".to_string(), data[ELF_SHSTRNDX_OFFSET[arch as usize] as usize]);
+    let file_header: elf::FileHeader = elf::FileHeader {
+        arch: util::parse_architecture(data[elf::ARCH_OFFSET as usize]),
+        is_x86_64: arch != 0,
+        endian: util::parse_endian(data[elf::ENDIAN_OFFSET as usize]),
+        abi: data[elf::ABI_OFFSET as usize],
+        elf_type: data[elf::TYPE_OFFSET as usize],
+        isa: data[elf::MACHINE_OFFSET as usize],
+        entryoff: data[elf::ENTRYPOINT_OFFSET as usize],
+        phoff: data[elf::PHOFF_OFFSET[arch] as usize],
+        shoff: data[elf::SHOFF_OFFSET[arch] as usize],
+        ehsize: data[elf::EHSIZE_OFFSET[arch] as usize],
+        phentsize: data[elf::PHENTSIZE_OFFSET[arch] as usize],
+        phnum: data[elf::PHNUM_OFFSET[arch] as usize],
+        shentsize: data[elf::SHENTSIZE_OFFSET[arch] as usize],
+        shnum: data[elf::SHNUM_OFFSET[arch] as usize],
+        shstrndx: data[elf::SHSTRNDX_OFFSET[arch] as usize],
+    };
 
     return file_header;
 }
+
+
+// fn build_program_header(data: &Vec<u8>, is_x86_64: bool) -> elf::ProgramHeader  {
+
+//     let arch: i8 = if is_x86_64 { 1 } else { 0 };
+
+//     let mut program_header: elf::ProgramHeader;
+
+//     // let mut program_header: elf::ProgramHeader = elf::ProgramHeader {
+//     //     arch: util::parse_architecture(data[elf::ARCH_OFFSET as usize])
+//     // };
+
+//     return program_header;
+// }
