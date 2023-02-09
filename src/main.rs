@@ -43,11 +43,33 @@ fn main() {
                 // Build the File Header data structure
                 let file_header: elf::FileHeader = build_file_header(bytes);
 
+
+                // TODO: This is fundamentally wrong. Using the phentsize and phnum
+                //       values from the file header, iterate over the program header
+                //       table to find all of the individual program headers. There is
+                //       not just one over-arching program header
+
                 // Build Program Header data structure
-                //let program_header: elf::ProgramHeader = build_program_header(bytes, file_header.is_x86_64);
+                let program_header: elf::ProgramHeader = build_program_header(
+                    bytes, 
+                    file_header.phoff,
+                    file_header.is_x86_64
+                );
+
+
+                // TODO: Same thing applies for the Section Headers...
+
+                // Build Section Header data structure
+                let section_header: elf::SectionHeader = build_section_header(
+                    bytes, 
+                    file_header.shoff,
+                    file_header.is_x86_64
+                );
                 
+
                 println!("{:?}", file_header);
-                //println!("{:?}", program_header);
+                println!("{:?}", program_header);
+                println!("{:?}", section_header);
 
             } else {
                 println!("[Error] Could not find magic number, is this an ELF executable?")
@@ -91,15 +113,47 @@ fn build_file_header(data: &Vec<u8>) -> elf::FileHeader {
 }
 
 
-// fn build_program_header(data: &Vec<u8>, is_x86_64: bool) -> elf::ProgramHeader  {
+fn build_program_header(data: &Vec<u8>, phoffset: u8, is_x86_64: bool) -> elf::ProgramHeader  {
 
-//     let arch: i8 = if is_x86_64 { 1 } else { 0 };
+    // Cast the supplied is_x86_64 bool to an array offset
+    // 0 : x86
+    // 1 : x64
+    let arch: usize = is_x86_64.into();
 
-//     let mut program_header: elf::ProgramHeader;
+    let program_header: elf::ProgramHeader = elf::ProgramHeader {
+        program_type: data[(elf::PH_TYPE_OFFSET + phoffset) as usize],
+        flags: data[(elf::PH_FLAGS_OFFSET[arch] + phoffset) as usize],
+        offset: data[(elf::PH_OFFSET_OFFSET[arch] + phoffset) as usize],
+        vaddr: data[(elf::PH_VADDR_OFFSET[arch] + phoffset) as usize],
+        paddr: data[(elf::PH_PADDR_OFFSET[arch] + phoffset) as usize],
+        filesz: data[(elf::PH_FILESZ_OFFSET[arch] + phoffset) as usize],
+        memsz: data[(elf::PH_MEMSZ_OFFSET[arch] + phoffset) as usize],
+        align: data[(elf::PH_ALIGN_OFFSET[arch] + phoffset) as usize],
+    };
 
-//     // let mut program_header: elf::ProgramHeader = elf::ProgramHeader {
-//     //     arch: util::parse_architecture(data[elf::ARCH_OFFSET as usize])
-//     // };
+    return program_header;
+}
 
-//     return program_header;
-// }
+
+fn build_section_header(data: &Vec<u8>, shoffset: u8, is_x86_64: bool) -> elf::SectionHeader  {
+
+    // Cast the supplied is_x86_64 bool to an array offset
+    // 0 : x86
+    // 1 : x64
+    let arch: usize = is_x86_64.into();
+
+    let section_header: elf::SectionHeader = elf::SectionHeader {
+        name: data[(elf::SH_NAME_OFFSET + shoffset) as usize],
+        section_type: data[(elf::SH_TYPE_OFFSET + shoffset) as usize],
+        flags: data[(elf::SH_FLAGS_OFFSET + shoffset) as usize],
+        addr: data[(elf::SH_ADDR_OFFSET[arch] + shoffset) as usize],
+        offset: data[(elf::SH_OFFSET_OFFSET[arch] + shoffset) as usize],
+        size: data[(elf::SH_SIZE_OFFSET[arch] + shoffset) as usize],
+        link: data[(elf::SH_LINK_OFFSET[arch] + shoffset) as usize],
+        info: data[(elf::SH_INFO_OFFSET[arch] + shoffset) as usize],
+        addralign: data[(elf::SH_ADDRALIGN_OFFSET[arch] + shoffset) as usize],
+        entsize: data[(elf::SH_ENTSIZE_OFFSET[arch] + shoffset) as usize],
+    };
+
+    return section_header;
+}

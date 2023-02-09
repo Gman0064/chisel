@@ -1,4 +1,10 @@
-use crate::elf::{self, EndianType, ArchitecureType};
+// util.rs
+// Author: Garrett Dickinson
+// Created: 02/02/2023
+// Description: Utility script for storing common-use and helper
+//              functions.
+
+use crate::elf::{self, EndianType, ArchitectureType};
 
 
 pub fn parse_endian(endian: u8) -> elf::EndianType {
@@ -10,11 +16,11 @@ pub fn parse_endian(endian: u8) -> elf::EndianType {
 }
 
 
-pub fn parse_architecture(arch: u8) -> elf::ArchitecureType {
+pub fn parse_architecture(arch: u8) -> elf::ArchitectureType {
     match arch {
-        0x01 => return ArchitecureType::X86,
-        0x02 => return ArchitecureType::X86_64,
-        _ => return ArchitecureType::Unknown
+        0x01 => return ArchitectureType::X86,
+        0x02 => return ArchitectureType::X86_64,
+        _ => return ArchitectureType::Unknown
     }
 }
 

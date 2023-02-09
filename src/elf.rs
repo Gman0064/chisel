@@ -1,5 +1,15 @@
+// elf.rs
+// Author: Garrett Dickinson
+// Created: 02/02/2023
+// Description: Provides constant and struct definitions for data
+//              structures related to the ELF binary specification
 
-// Generic ELF information offsets.
+
+///////////////////////////////////////////////////////////////////////////////
+/// 
+/// Generic ELF information offsets.
+/// 
+///////////////////////////////////////////////////////////////////////////////
 
 pub const MAGIC_NUMBER: &[u8] = &[0x7F,0x45,0x4C,0x46];
 pub const ARCH_OFFSET: u8 = 0x04;       // x86 or x64 indiicator; 1 byte
@@ -9,10 +19,14 @@ pub const TYPE_OFFSET: u8 = 0x10;       // Object type identifier; 2 bytes
 pub const MACHINE_OFFSET: u8 = 0x12;    // Instruction set type; 2 bytes
 
 
-// Offsets for file header entry points and table inforamtion.
-// Arrayed offset are split by architecture:
-//      0 : x86
-//      1 : x86_64
+///////////////////////////////////////////////////////////////////////////////
+///
+/// Offsets for file header entry points and table information.
+/// Arrayed offset are split by architecture:
+///      0 : x86
+///      1 : x86_64
+/// 
+///////////////////////////////////////////////////////////////////////////////
 
 pub const ENTRYPOINT_OFFSET: u8 = 0x18;
 pub const PHOFF_OFFSET: [u8; 2] = [0x1C, 0x20];        // Program header table pointer; 2 bytes
@@ -25,8 +39,49 @@ pub const SHNUM_OFFSET: [u8; 2] = [0x30, 0x3C];        // Number of entries in s
 pub const SHSTRNDX_OFFSET: [u8; 2] = [0x32, 0x3E];     // Index of section header that contains names; 2 bytes
 
 
+///////////////////////////////////////////////////////////////////////////////
+///
+/// Offsets for program header information.
+/// Arrayed offset are split by architecture:
+///      0 : x86
+///      1 : x86_64
+/// 
+///////////////////////////////////////////////////////////////////////////////
+
+pub const PH_TYPE_OFFSET: u8 = 0x00;
+pub const PH_FLAGS_OFFSET: [u8; 2] = [0x18, 0x04];
+pub const PH_OFFSET_OFFSET: [u8; 2] = [0x04, 0x08];
+pub const PH_VADDR_OFFSET: [u8; 2] = [0x08, 0x10];
+pub const PH_PADDR_OFFSET: [u8; 2] = [0x0C, 0x18];
+pub const PH_FILESZ_OFFSET: [u8; 2] = [0x10, 0x20];
+pub const PH_MEMSZ_OFFSET: [u8; 2] = [0x14, 0x28];
+pub const PH_ALIGN_OFFSET: [u8; 2] = [0x1C, 0x30];
+
+
+///////////////////////////////////////////////////////////////////////////////
+///
+/// Offsets for section header information.
+/// Arrayed offset are split by architecture:
+///      0 : x86
+///      1 : x86_64
+/// 
+///////////////////////////////////////////////////////////////////////////////
+
+pub const SH_NAME_OFFSET: u8 = 0x00;
+pub const SH_TYPE_OFFSET: u8 = 0x04;
+pub const SH_FLAGS_OFFSET: u8 = 0x08;
+pub const SH_ADDR_OFFSET: [u8; 2] = [0x0C, 0x10];
+pub const SH_OFFSET_OFFSET: [u8; 2] = [0x10, 0x18];
+pub const SH_SIZE_OFFSET: [u8; 2] = [0x14, 0x20];
+pub const SH_LINK_OFFSET: [u8; 2] = [0x18, 0x28];
+pub const SH_INFO_OFFSET: [u8; 2] = [0x1C, 0x2C];
+pub const SH_ADDRALIGN_OFFSET: [u8; 2] = [0x20, 0x30];
+pub const SH_ENTSIZE_OFFSET: [u8; 2] = [0x24, 0x38];
+
+
+
 #[derive(Debug)]
-pub enum ArchitecureType {
+pub enum ArchitectureType {
     X86,
     X86_64,
     Unknown
@@ -40,10 +95,13 @@ pub enum EndianType {
     Unknown
 }
 
+// TODO: Types in structs for holding addresses are most likely
+//       too small, increase to u32 maybe?
+//       Refer to structs in /usr/include/elf.h for this
 
 #[derive(Debug)]
 pub struct FileHeader {
-    pub arch: ArchitecureType,
+    pub arch: ArchitectureType,
     pub is_x86_64: bool,
     pub endian: EndianType,
     pub abi: u8,
@@ -69,6 +127,7 @@ pub struct ProgramHeader {
     pub vaddr: u8,
     pub paddr: u8,
     pub filesz: u8,
+    pub memsz: u8,
     pub align: u8,
 }
 
