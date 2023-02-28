@@ -4,6 +4,9 @@
 // Description: Main entrypoint script for chisel. Contains basic procedures
 //              for gathering ELF file and program data.
 
+use iced_x86::*;
+use std::collections::HashMap;
+use std::io::Write;
 use std::path;
 use std::env;
 use std::fs;
@@ -43,33 +46,108 @@ fn main() {
                 // Build the File Header data structure
                 let file_header: elf::FileHeader = build_file_header(bytes);
 
-
-                // TODO: This is fundamentally wrong. Using the phentsize and phnum
-                //       values from the file header, iterate over the program header
-                //       table to find all of the individual program headers. There is
-                //       not just one over-arching program header
-
-                // Build Program Header data structure
-                let program_header: elf::ProgramHeader = build_program_header(
-                    bytes, 
-                    file_header.phoff,
-                    file_header.is_x86_64
-                );
-
-
-                // TODO: Same thing applies for the Section Headers...
-
-                // Build Section Header data structure
-                let section_header: elf::SectionHeader = build_section_header(
-                    bytes, 
-                    file_header.shoff,
-                    file_header.is_x86_64
-                );
-                
+                println!("\t- Found {} program header entries {} bytes in length", file_header.phnum, file_header.phentsize);
+                println!("\t- Found {} section header entries {} bytes in length", file_header.shnum, file_header.shentsize);
+                println!("\t- Found .shstrtab section at index {}", file_header.shstrndx); 
 
                 println!("{:?}", file_header);
-                println!("{:?}", program_header);
-                println!("{:?}", section_header);
+
+                println!("\nParsing Section Headers...");
+
+
+                // Determine the shstrtab offset.
+                // This is found by taking the string table index and multiplying it by the section header entry size, then
+                // adding this to the initial section header offset.
+                let shstrtab_offset: u64 = file_header.shoff + (file_header.shentsize as u64 * file_header.shstrndx as u64);
+
+                // Build a read-only version of the .shstrtab section
+                let shstrtab_section: elf::SectionHeader = build_section_header(
+                    bytes,
+                    shstrtab_offset as usize,
+                    file_header.is_x86_64
+                );
+
+                let shstrtab_start: u64 = shstrtab_section.offset;
+                let shstrtab_end: u64 = shstrtab_section.offset + shstrtab_section.size;
+                let shstrtab_data: Vec<u8> = bytes[shstrtab_start as usize..shstrtab_end as usize].to_vec();
+
+                println!("\t- Found .shstrtab section");
+
+
+                println!("\n=== Sections ===");
+
+                let mut section_table_map: HashMap<String, elf::SectionHeader> = HashMap::new();
+                let mut section_table_offset: u64 = file_header.shoff;
+                let mut section_table_count: i32 = 0;
+
+                // Build Section Header data structure
+                for _ in 0..file_header.shnum {
+                    let section_header: elf::SectionHeader = build_section_header(
+                        bytes, 
+                        section_table_offset as usize,
+                        file_header.is_x86_64
+                    );
+
+                    // Determine the section name for each section using the shstrtab data
+                    let section_name: String = util::parse_section_name(&shstrtab_data, section_header.name as usize);
+
+                    println!("[{}] {}", section_table_count, section_name);
+                    println!("{:?}", section_header);
+
+                    section_table_map.insert(section_name, section_header);
+
+                    section_table_offset += file_header.shentsize as u64;
+                    section_table_count += 1;
+                }
+
+                println!("\nParsing Program Segments...");
+                
+                println!("\n=== Program Segments ===");
+
+                let mut program_table_offset = file_header.phoff;
+                let mut program_table_count: i32 = 0;
+
+                // Build Section Header data structure
+                for _ in 0..file_header.phnum {
+                    // Build Program Header data structure
+                    let program_header: elf::ProgramHeader = build_program_header(
+                        bytes, 
+                        program_table_offset as usize,
+                        file_header.is_x86_64
+                    );
+
+                    // Set a default section name if there's no index found in the table
+                    let program_name: String = util::parse_program_segment_type(program_header.program_type);
+
+                    println!("[{}] {}", program_table_count, program_name);
+                    println!("{:?}", program_header);
+
+                    program_table_offset += file_header.phentsize as u64;
+                    program_table_count += 1;
+                }
+
+
+                // Now that we have all the sections, spit out the .text section and start a linear disassembly
+                let text_section: &elf::SectionHeader = section_table_map.get(".text").unwrap();
+                let text_section_offset: usize = text_section.offset as usize;
+                let text_section_end: usize = text_section_offset + text_section.size as usize;
+
+                let text_section_buff: &[u8] = &bytes[text_section_offset..text_section_end];
+                
+                let mut decoder: Decoder = Decoder::new(64, text_section_buff, DecoderOptions::NONE);
+                let mut instruction: Instruction = Instruction::default();
+                let instruction_start: u64 = 0;
+                let instruction_length: u64 = 1;
+
+                while (instruction_start + instruction_length) < text_section.size {
+                    //let instruction_bytes: &[u8] = &text_section_buff[instruction_start..instruction_length];
+                    //instruction.
+                    //decoder.decode_out(instruction)
+                }
+
+                //let out_file = fs::File::create("out.s").unwrap();
+                //out_file.write()
+                //out_file.flush();
 
             } else {
                 println!("[Error] Could not find magic number, is this an ELF executable?")
@@ -85,7 +163,7 @@ fn main() {
 
 
 fn build_file_header(data: &Vec<u8>) -> elf::FileHeader {
-    
+
     // Determine x86 or x64 architecture
     // 0 : x86
     // 1 : x64
@@ -96,24 +174,26 @@ fn build_file_header(data: &Vec<u8>) -> elf::FileHeader {
         is_x86_64: arch != 0,
         endian: util::parse_endian(data[elf::ENDIAN_OFFSET as usize]),
         abi: data[elf::ABI_OFFSET as usize],
-        elf_type: data[elf::TYPE_OFFSET as usize],
-        isa: data[elf::MACHINE_OFFSET as usize],
-        entryoff: data[elf::ENTRYPOINT_OFFSET as usize],
-        phoff: data[elf::PHOFF_OFFSET[arch] as usize],
-        shoff: data[elf::SHOFF_OFFSET[arch] as usize],
-        ehsize: data[elf::EHSIZE_OFFSET[arch] as usize],
-        phentsize: data[elf::PHENTSIZE_OFFSET[arch] as usize],
-        phnum: data[elf::PHNUM_OFFSET[arch] as usize],
-        shentsize: data[elf::SHENTSIZE_OFFSET[arch] as usize],
-        shnum: data[elf::SHNUM_OFFSET[arch] as usize],
-        shstrndx: data[elf::SHSTRNDX_OFFSET[arch] as usize],
+        abi_str: util::parse_abi(data[elf::ABI_OFFSET as usize]),
+        elf_type: util::u16_from_buffer(data, elf::TYPE_OFFSET as usize),
+        isa: util::u16_from_buffer(data, elf::MACHINE_OFFSET as usize),
+        isa_str: util::parse_isa(util::u16_from_buffer(data, elf::MACHINE_OFFSET as usize)),
+        entryoff: util::u64_from_buffer(data, elf::ENTRYPOINT_OFFSET as usize),
+        phoff: util::u64_from_buffer(data, elf::PHOFF_OFFSET[arch] as usize),
+        shoff: util::u64_from_buffer(data, elf::SHOFF_OFFSET[arch] as usize),
+        ehsize: util::u16_from_buffer(data, elf::EHSIZE_OFFSET[arch] as usize),
+        phentsize: util::u16_from_buffer(data, elf::PHENTSIZE_OFFSET[arch] as usize),
+        phnum: util::u16_from_buffer(data, elf::PHNUM_OFFSET[arch] as usize),
+        shentsize: util::u16_from_buffer(data, elf::SHENTSIZE_OFFSET[arch] as usize),
+        shnum: util::u16_from_buffer(data, elf::SHNUM_OFFSET[arch] as usize),
+        shstrndx: util::u16_from_buffer(data, elf::SHSTRNDX_OFFSET[arch] as usize),
     };
 
     return file_header;
 }
 
 
-fn build_program_header(data: &Vec<u8>, phoffset: u8, is_x86_64: bool) -> elf::ProgramHeader  {
+fn build_program_header(data: &Vec<u8>, phoffset: usize, is_x86_64: bool) -> elf::ProgramHeader  {
 
     // Cast the supplied is_x86_64 bool to an array offset
     // 0 : x86
@@ -121,21 +201,21 @@ fn build_program_header(data: &Vec<u8>, phoffset: u8, is_x86_64: bool) -> elf::P
     let arch: usize = is_x86_64.into();
 
     let program_header: elf::ProgramHeader = elf::ProgramHeader {
-        program_type: data[(elf::PH_TYPE_OFFSET + phoffset) as usize],
-        flags: data[(elf::PH_FLAGS_OFFSET[arch] + phoffset) as usize],
-        offset: data[(elf::PH_OFFSET_OFFSET[arch] + phoffset) as usize],
-        vaddr: data[(elf::PH_VADDR_OFFSET[arch] + phoffset) as usize],
-        paddr: data[(elf::PH_PADDR_OFFSET[arch] + phoffset) as usize],
-        filesz: data[(elf::PH_FILESZ_OFFSET[arch] + phoffset) as usize],
-        memsz: data[(elf::PH_MEMSZ_OFFSET[arch] + phoffset) as usize],
-        align: data[(elf::PH_ALIGN_OFFSET[arch] + phoffset) as usize],
+        program_type: util::u32_from_buffer(data, phoffset + elf::PH_TYPE_OFFSET as usize),
+        flags: util::u32_from_buffer(data, phoffset + elf::PH_FLAGS_OFFSET[arch] as usize),
+        offset: util::u64_from_buffer(data, phoffset + elf::PH_OFFSET_OFFSET[arch] as usize),
+        vaddr: util::u64_from_buffer(data, phoffset + elf::PH_VADDR_OFFSET[arch] as usize),
+        paddr: util::u64_from_buffer(data, phoffset + elf::PH_PADDR_OFFSET[arch] as usize),
+        filesz: util::u64_from_buffer(data, phoffset + elf::PH_FILESZ_OFFSET[arch] as usize),
+        memsz: util::u64_from_buffer(data, phoffset + elf::PH_MEMSZ_OFFSET[arch] as usize),
+        align: util::u64_from_buffer(data, phoffset + elf::PH_ALIGN_OFFSET[arch] as usize)
     };
 
     return program_header;
 }
 
 
-fn build_section_header(data: &Vec<u8>, shoffset: u8, is_x86_64: bool) -> elf::SectionHeader  {
+fn build_section_header(data: &Vec<u8>, shoffset: usize, is_x86_64: bool) -> elf::SectionHeader  {
 
     // Cast the supplied is_x86_64 bool to an array offset
     // 0 : x86
@@ -143,16 +223,16 @@ fn build_section_header(data: &Vec<u8>, shoffset: u8, is_x86_64: bool) -> elf::S
     let arch: usize = is_x86_64.into();
 
     let section_header: elf::SectionHeader = elf::SectionHeader {
-        name: data[(elf::SH_NAME_OFFSET + shoffset) as usize],
-        section_type: data[(elf::SH_TYPE_OFFSET + shoffset) as usize],
-        flags: data[(elf::SH_FLAGS_OFFSET + shoffset) as usize],
-        addr: data[(elf::SH_ADDR_OFFSET[arch] + shoffset) as usize],
-        offset: data[(elf::SH_OFFSET_OFFSET[arch] + shoffset) as usize],
-        size: data[(elf::SH_SIZE_OFFSET[arch] + shoffset) as usize],
-        link: data[(elf::SH_LINK_OFFSET[arch] + shoffset) as usize],
-        info: data[(elf::SH_INFO_OFFSET[arch] + shoffset) as usize],
-        addralign: data[(elf::SH_ADDRALIGN_OFFSET[arch] + shoffset) as usize],
-        entsize: data[(elf::SH_ENTSIZE_OFFSET[arch] + shoffset) as usize],
+        name: util::u32_from_buffer(data, shoffset + elf::SH_NAME_OFFSET as usize),
+        section_type: util::u32_from_buffer(data, shoffset + elf::SH_TYPE_OFFSET as usize),
+        flags: util::u64_from_buffer(data, shoffset + elf::SH_FLAGS_OFFSET as usize),
+        addr: util::u64_from_buffer(data, shoffset + elf::SH_ADDR_OFFSET[arch] as usize),
+        offset: util::u64_from_buffer(data, shoffset + elf::SH_OFFSET_OFFSET[arch] as usize),
+        size: util::u64_from_buffer(data, shoffset + elf::SH_SIZE_OFFSET[arch] as usize),
+        link: util::u32_from_buffer(data, shoffset + elf::SH_LINK_OFFSET[arch] as usize),
+        info: util::u32_from_buffer(data, shoffset + elf::SH_INFO_OFFSET[arch] as usize),
+        addralign: util::u64_from_buffer(data, shoffset + elf::SH_ADDRALIGN_OFFSET[arch] as usize),
+        entsize: util::u64_from_buffer(data, shoffset + elf::SH_ENTSIZE_OFFSET[arch] as usize)
     };
 
     return section_header;

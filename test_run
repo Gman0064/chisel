@@ -1,0 +1,104 @@
+File exists, reading 'testing/hello'...
+Found ELF Magic Number...
+Parsing File Header...
+	- Found 13 program header entries 56 bytes in length
+	- Found 31 section header entries 64 bytes in length
+	- Found .shstrtab section at index 30
+FileHeader { arch: X86_64, is_x86_64: true, endian: Little, abi: 0, abi_str: "SystemV", elf_type: 3, isa: 62, isa_str: "AMD x86-64", entryoff: 4192, phoff: 64, shoff: 13976, ehsize: 64, phentsize: 56, phnum: 13, shentsize: 64, shnum: 31, shstrndx: 30 }
+
+Parsing Section Headers...
+	- Found .shstrtab section
+
+=== Sections ===
+[0] 
+SectionHeader { name: 0, section_type: 0, flags: 0, addr: 0, offset: 0, size: 0, link: 0, info: 0, addralign: 0, entsize: 0 }
+[1] .interp
+SectionHeader { name: 27, section_type: 1, flags: 2, addr: 792, offset: 792, size: 28, link: 0, info: 0, addralign: 1, entsize: 0 }
+[2] .note.gnu.property
+SectionHeader { name: 35, section_type: 7, flags: 2, addr: 824, offset: 824, size: 48, link: 0, info: 0, addralign: 8, entsize: 0 }
+[3] .note.gnu.build-id
+SectionHeader { name: 54, section_type: 7, flags: 2, addr: 872, offset: 872, size: 36, link: 0, info: 0, addralign: 4, entsize: 0 }
+[4] .note.ABI-tag
+SectionHeader { name: 73, section_type: 7, flags: 2, addr: 908, offset: 908, size: 32, link: 0, info: 0, addralign: 4, entsize: 0 }
+[5] .gnu.hash
+SectionHeader { name: 87, section_type: 1879048182, flags: 2, addr: 944, offset: 944, size: 36, link: 6, info: 0, addralign: 8, entsize: 0 }
+[6] .dynsym
+SectionHeader { name: 97, section_type: 11, flags: 2, addr: 984, offset: 984, size: 168, link: 7, info: 1, addralign: 8, entsize: 24 }
+[7] .dynstr
+SectionHeader { name: 105, section_type: 3, flags: 2, addr: 1152, offset: 1152, size: 143, link: 0, info: 0, addralign: 1, entsize: 0 }
+[8] .gnu.version
+SectionHeader { name: 113, section_type: 1879048191, flags: 2, addr: 1296, offset: 1296, size: 14, link: 6, info: 0, addralign: 2, entsize: 2 }
+[9] .gnu.version_r
+SectionHeader { name: 126, section_type: 1879048190, flags: 2, addr: 1312, offset: 1312, size: 48, link: 7, info: 1, addralign: 8, entsize: 0 }
+[10] .rela.dyn
+SectionHeader { name: 141, section_type: 4, flags: 2, addr: 1360, offset: 1360, size: 192, link: 6, info: 0, addralign: 8, entsize: 24 }
+[11] .rela.plt
+SectionHeader { name: 151, section_type: 4, flags: 66, addr: 1552, offset: 1552, size: 24, link: 6, info: 24, addralign: 8, entsize: 24 }
+[12] .init
+SectionHeader { name: 161, section_type: 1, flags: 6, addr: 4096, offset: 4096, size: 27, link: 0, info: 0, addralign: 4, entsize: 0 }
+[13] .plt
+SectionHeader { name: 156, section_type: 1, flags: 6, addr: 4128, offset: 4128, size: 32, link: 0, info: 0, addralign: 16, entsize: 16 }
+[14] .plt.got
+SectionHeader { name: 167, section_type: 1, flags: 6, addr: 4160, offset: 4160, size: 16, link: 0, info: 0, addralign: 16, entsize: 16 }
+[15] .plt.sec
+SectionHeader { name: 176, section_type: 1, flags: 6, addr: 4176, offset: 4176, size: 16, link: 0, info: 0, addralign: 16, entsize: 16 }
+[16] .text
+SectionHeader { name: 185, section_type: 1, flags: 6, addr: 4192, offset: 4192, size: 268, link: 0, info: 0, addralign: 16, entsize: 0 }
+[17] .fini
+SectionHeader { name: 191, section_type: 1, flags: 6, addr: 4460, offset: 4460, size: 13, link: 0, info: 0, addralign: 4, entsize: 0 }
+[18] .rodata
+SectionHeader { name: 197, section_type: 1, flags: 2, addr: 8192, offset: 8192, size: 18, link: 0, info: 0, addralign: 4, entsize: 0 }
+[19] .eh_frame_hdr
+SectionHeader { name: 205, section_type: 1, flags: 2, addr: 8212, offset: 8212, size: 52, link: 0, info: 0, addralign: 4, entsize: 0 }
+[20] .eh_frame
+SectionHeader { name: 219, section_type: 1, flags: 2, addr: 8264, offset: 8264, size: 172, link: 0, info: 0, addralign: 8, entsize: 0 }
+[21] .init_array
+SectionHeader { name: 229, section_type: 14, flags: 3, addr: 15800, offset: 11704, size: 8, link: 0, info: 0, addralign: 8, entsize: 8 }
+[22] .fini_array
+SectionHeader { name: 241, section_type: 15, flags: 3, addr: 15808, offset: 11712, size: 8, link: 0, info: 0, addralign: 8, entsize: 8 }
+[23] .dynamic
+SectionHeader { name: 253, section_type: 6, flags: 3, addr: 15816, offset: 11720, size: 496, link: 7, info: 0, addralign: 8, entsize: 16 }
+[24] .got
+SectionHeader { name: 171, section_type: 1, flags: 3, addr: 16312, offset: 12216, size: 72, link: 0, info: 0, addralign: 8, entsize: 8 }
+[25] .data
+SectionHeader { name: 262, section_type: 1, flags: 3, addr: 16384, offset: 12288, size: 16, link: 0, info: 0, addralign: 8, entsize: 0 }
+[26] .bss
+SectionHeader { name: 268, section_type: 8, flags: 3, addr: 16400, offset: 12304, size: 8, link: 0, info: 0, addralign: 1, entsize: 0 }
+[27] .comment
+SectionHeader { name: 273, section_type: 1, flags: 48, addr: 0, offset: 12304, size: 43, link: 0, info: 0, addralign: 1, entsize: 1 }
+[28] .symtab
+SectionHeader { name: 1, section_type: 2, flags: 0, addr: 0, offset: 12352, size: 864, link: 29, info: 18, addralign: 8, entsize: 24 }
+[29] .strtab
+SectionHeader { name: 9, section_type: 3, flags: 0, addr: 0, offset: 13216, size: 477, link: 0, info: 0, addralign: 1, entsize: 0 }
+[30] .shstrtab
+SectionHeader { name: 17, section_type: 3, flags: 0, addr: 0, offset: 13693, size: 282, link: 0, info: 0, addralign: 1, entsize: 0 }
+
+Parsing Program Segments...
+
+=== Program Segments ===
+[0] PT_PHDR
+ProgramHeader { program_type: 6, flags: 4, offset: 64, vaddr: 64, paddr: 64, filesz: 728, memsz: 728, align: 8 }
+[1] PT_INTERP
+ProgramHeader { program_type: 3, flags: 4, offset: 792, vaddr: 792, paddr: 792, filesz: 28, memsz: 28, align: 1 }
+[2] PT_LOAD
+ProgramHeader { program_type: 1, flags: 4, offset: 0, vaddr: 0, paddr: 0, filesz: 1576, memsz: 1576, align: 4096 }
+[3] PT_LOAD
+ProgramHeader { program_type: 1, flags: 5, offset: 4096, vaddr: 4096, paddr: 4096, filesz: 377, memsz: 377, align: 4096 }
+[4] PT_LOAD
+ProgramHeader { program_type: 1, flags: 4, offset: 8192, vaddr: 8192, paddr: 8192, filesz: 244, memsz: 244, align: 4096 }
+[5] PT_LOAD
+ProgramHeader { program_type: 1, flags: 6, offset: 11704, vaddr: 15800, paddr: 15800, filesz: 600, memsz: 608, align: 4096 }
+[6] PT_DYNAMIC
+ProgramHeader { program_type: 2, flags: 6, offset: 11720, vaddr: 15816, paddr: 15816, filesz: 496, memsz: 496, align: 8 }
+[7] PT_NOTE
+ProgramHeader { program_type: 4, flags: 4, offset: 824, vaddr: 824, paddr: 824, filesz: 48, memsz: 48, align: 8 }
+[8] PT_NOTE
+ProgramHeader { program_type: 4, flags: 4, offset: 872, vaddr: 872, paddr: 872, filesz: 68, memsz: 68, align: 4 }
+[9] UNKNOWN
+ProgramHeader { program_type: 1685382483, flags: 4, offset: 824, vaddr: 824, paddr: 824, filesz: 48, memsz: 48, align: 8 }
+[10] UNKNOWN
+ProgramHeader { program_type: 1685382480, flags: 4, offset: 8212, vaddr: 8212, paddr: 8212, filesz: 52, memsz: 52, align: 4 }
+[11] UNKNOWN
+ProgramHeader { program_type: 1685382481, flags: 6, offset: 0, vaddr: 0, paddr: 0, filesz: 0, memsz: 0, align: 16 }
+[12] UNKNOWN
+ProgramHeader { program_type: 1685382482, flags: 4, offset: 11704, vaddr: 15800, paddr: 15800, filesz: 584, memsz: 584, align: 1 }
