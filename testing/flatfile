@@ -1,1 +1,3 @@
 hello world
+this flat file should fail
+because it doesn't have the ELF magic keyword
