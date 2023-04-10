@@ -226,7 +226,8 @@ fn main() {
                     println!("\n==== Applying Patch To Binary ====\n");
 
                     patcher::patch_binary(
-                        bytes,
+                        bytes.to_vec(),
+                        file_path.to_string(),
                         &patch_file_path
                     );
                 }

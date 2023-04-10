@@ -1,0 +1,508 @@
+File exists, reading 'testing/hello'...
+Found ELF Magic Number...
+Parsing File Header...
+	- Found 13 program header entries 56 bytes in length
+	- Found 31 section header entries 64 bytes in length
+	- Found .shstrtab section at index 30
+
+==== File Header ====
+- Architecture: X86_64
+- Endian: Little
+- ABI: System V
+- Type: Shared object
+- ISA: AMD x86-64
+- Entry Point: 0x1060
+- Program Offset: 0x40
+- Program Entry Size: 56
+- Number Program Entries: 13
+- Section Offset: 0x3698
+- Section Entry Size: 64
+- Number Section Entries: 31
+
+Parsing Section Headers...
+	- Found .shstrtab section
+
+==== Sections ====
+[0] 
+	- Type: SHT_NULL
+	- Flags: UNKNOWN
+	- Address: 0x00
+	- Offset: 0x00
+	- Link Index: 0
+	- Info Bytes: 0
+	- Alignment: 0
+
+[1] .interp
+	- Type: SHT_PROGBITS
+	- Flags: SHF_ALLOC
+	- Address: 0x01
+	- Offset: 0x01
+	- Link Index: 0
+	- Info Bytes: 0
+	- Alignment: 0
+
+[2] .note.gnu.property
+	- Type: SHT_NOTE
+	- Flags: SHF_ALLOC
+	- Address: 0x07
+	- Offset: 0x07
+	- Link Index: 0
+	- Info Bytes: 0
+	- Alignment: 0
+
+[3] .note.gnu.build-id
+	- Type: SHT_NOTE
+	- Flags: SHF_ALLOC
+	- Address: 0x07
+	- Offset: 0x07
+	- Link Index: 0
+	- Info Bytes: 0
+	- Alignment: 0
+
+[4] .note.ABI-tag
+	- Type: SHT_NOTE
+	- Flags: SHF_ALLOC
+	- Address: 0x07
+	- Offset: 0x07
+	- Link Index: 0
+	- Info Bytes: 0
+	- Alignment: 0
+
+[5] .gnu.hash
+	- Type: UNKNOWN
+	- Flags: SHF_ALLOC
+	- Address: 0x6ffffff6
+	- Offset: 0x6ffffff6
+	- Link Index: 6
+	- Info Bytes: 0
+	- Alignment: 0
+
+[6] .dynsym
+	- Type: SHT_DYNSYM
+	- Flags: SHF_ALLOC
+	- Address: 0x0b
+	- Offset: 0x0b
+	- Link Index: 7
+	- Info Bytes: 1
+	- Alignment: 1
+
+[7] .dynstr
+	- Type: SHT_STRTAB
+	- Flags: SHF_ALLOC
+	- Address: 0x03
+	- Offset: 0x03
+	- Link Index: 0
+	- Info Bytes: 0
+	- Alignment: 0
+
+[8] .gnu.version
+	- Type: UNKNOWN
+	- Flags: SHF_ALLOC
+	- Address: 0x6fffffff
+	- Offset: 0x6fffffff
+	- Link Index: 6
+	- Info Bytes: 0
+	- Alignment: 0
+
+[9] .gnu.version_r
+	- Type: UNKNOWN
+	- Flags: SHF_ALLOC
+	- Address: 0x6ffffffe
+	- Offset: 0x6ffffffe
+	- Link Index: 7
+	- Info Bytes: 1
+	- Alignment: 1
+
+[10] .rela.dyn
+	- Type: SHT_RELA
+	- Flags: SHF_ALLOC
+	- Address: 0x04
+	- Offset: 0x04
+	- Link Index: 6
+	- Info Bytes: 0
+	- Alignment: 0
+
+[11] .rela.plt
+	- Type: SHT_RELA
+	- Flags: UNKNOWN
+	- Address: 0x04
+	- Offset: 0x04
+	- Link Index: 6
+	- Info Bytes: 24
+	- Alignment: 24
+
+[12] .init
+	- Type: SHT_PROGBITS
+	- Flags: UNKNOWN
+	- Address: 0x01
+	- Offset: 0x01
+	- Link Index: 0
+	- Info Bytes: 0
+	- Alignment: 0
+
+[13] .plt
+	- Type: SHT_PROGBITS
+	- Flags: UNKNOWN
+	- Address: 0x01
+	- Offset: 0x01
+	- Link Index: 0
+	- Info Bytes: 0
+	- Alignment: 0
+
+[14] .plt.got
+	- Type: SHT_PROGBITS
+	- Flags: UNKNOWN
+	- Address: 0x01
+	- Offset: 0x01
+	- Link Index: 0
+	- Info Bytes: 0
+	- Alignment: 0
+
+[15] .plt.sec
+	- Type: SHT_PROGBITS
+	- Flags: UNKNOWN
+	- Address: 0x01
+	- Offset: 0x01
+	- Link Index: 0
+	- Info Bytes: 0
+	- Alignment: 0
+
+[16] .text
+	- Type: SHT_PROGBITS
+	- Flags: UNKNOWN
+	- Address: 0x01
+	- Offset: 0x01
+	- Link Index: 0
+	- Info Bytes: 0
+	- Alignment: 0
+
+[17] .fini
+	- Type: SHT_PROGBITS
+	- Flags: UNKNOWN
+	- Address: 0x01
+	- Offset: 0x01
+	- Link Index: 0
+	- Info Bytes: 0
+	- Alignment: 0
+
+[18] .rodata
+	- Type: SHT_PROGBITS
+	- Flags: SHF_ALLOC
+	- Address: 0x01
+	- Offset: 0x01
+	- Link Index: 0
+	- Info Bytes: 0
+	- Alignment: 0
+
+[19] .eh_frame_hdr
+	- Type: SHT_PROGBITS
+	- Flags: SHF_ALLOC
+	- Address: 0x01
+	- Offset: 0x01
+	- Link Index: 0
+	- Info Bytes: 0
+	- Alignment: 0
+
+[20] .eh_frame
+	- Type: SHT_PROGBITS
+	- Flags: SHF_ALLOC
+	- Address: 0x01
+	- Offset: 0x01
+	- Link Index: 0
+	- Info Bytes: 0
+	- Alignment: 0
+
+[21] .init_array
+	- Type: SHT_INIT_ARRAY
+	- Flags: UNKNOWN
+	- Address: 0x0e
+	- Offset: 0x0e
+	- Link Index: 0
+	- Info Bytes: 0
+	- Alignment: 0
+
+[22] .fini_array
+	- Type: SHT_FINI_ARRAY
+	- Flags: UNKNOWN
+	- Address: 0x0f
+	- Offset: 0x0f
+	- Link Index: 0
+	- Info Bytes: 0
+	- Alignment: 0
+
+[23] .dynamic
+	- Type: SHT_DYNAMIC
+	- Flags: UNKNOWN
+	- Address: 0x06
+	- Offset: 0x06
+	- Link Index: 7
+	- Info Bytes: 0
+	- Alignment: 0
+
+[24] .got
+	- Type: SHT_PROGBITS
+	- Flags: UNKNOWN
+	- Address: 0x01
+	- Offset: 0x01
+	- Link Index: 0
+	- Info Bytes: 0
+	- Alignment: 0
+
+[25] .data
+	- Type: SHT_PROGBITS
+	- Flags: UNKNOWN
+	- Address: 0x01
+	- Offset: 0x01
+	- Link Index: 0
+	- Info Bytes: 0
+	- Alignment: 0
+
+[26] .bss
+	- Type: SHT_NOBITS
+	- Flags: UNKNOWN
+	- Address: 0x08
+	- Offset: 0x08
+	- Link Index: 0
+	- Info Bytes: 0
+	- Alignment: 0
+
+[27] .comment
+	- Type: SHT_PROGBITS
+	- Flags: UNKNOWN
+	- Address: 0x01
+	- Offset: 0x01
+	- Link Index: 0
+	- Info Bytes: 0
+	- Alignment: 0
+
+[28] .symtab
+	- Type: SHT_SYMTAB
+	- Flags: UNKNOWN
+	- Address: 0x02
+	- Offset: 0x02
+	- Link Index: 29
+	- Info Bytes: 18
+	- Alignment: 18
+
+[29] .strtab
+	- Type: SHT_STRTAB
+	- Flags: UNKNOWN
+	- Address: 0x03
+	- Offset: 0x03
+	- Link Index: 0
+	- Info Bytes: 0
+	- Alignment: 0
+
+[30] .shstrtab
+	- Type: SHT_STRTAB
+	- Flags: UNKNOWN
+	- Address: 0x03
+	- Offset: 0x03
+	- Link Index: 0
+	- Info Bytes: 0
+	- Alignment: 0
+
+
+Parsing Program Segments...
+
+==== Program Segments ====
+[0] PT_PHDR
+	- Type: SHT_DYNAMIC
+	- Flags: 4
+	- Offset: 0x40
+	- Virtual Address: 0x40
+	- Physical Address: 0x40
+	- File Size: 728
+	- Memory Size: 728
+	- Alignment: 8
+
+[1] PT_INTERP
+	- Type: SHT_STRTAB
+	- Flags: 4
+	- Offset: 0x318
+	- Virtual Address: 0x318
+	- Physical Address: 0x318
+	- File Size: 28
+	- Memory Size: 28
+	- Alignment: 1
+
+[2] PT_LOAD
+	- Type: SHT_PROGBITS
+	- Flags: 4
+	- Offset: 0x00
+	- Virtual Address: 0x00
+	- Physical Address: 0x00
+	- File Size: 1576
+	- Memory Size: 1576
+	- Alignment: 4096
+
+[3] PT_LOAD
+	- Type: SHT_PROGBITS
+	- Flags: 5
+	- Offset: 0x1000
+	- Virtual Address: 0x1000
+	- Physical Address: 0x1000
+	- File Size: 377
+	- Memory Size: 377
+	- Alignment: 4096
+
+[4] PT_LOAD
+	- Type: SHT_PROGBITS
+	- Flags: 4
+	- Offset: 0x2000
+	- Virtual Address: 0x2000
+	- Physical Address: 0x2000
+	- File Size: 244
+	- Memory Size: 244
+	- Alignment: 4096
+
+[5] PT_LOAD
+	- Type: SHT_PROGBITS
+	- Flags: 6
+	- Offset: 0x2db8
+	- Virtual Address: 0x3db8
+	- Physical Address: 0x3db8
+	- File Size: 600
+	- Memory Size: 608
+	- Alignment: 4096
+
+[6] PT_DYNAMIC
+	- Type: SHT_SYMTAB
+	- Flags: 6
+	- Offset: 0x2dc8
+	- Virtual Address: 0x3dc8
+	- Physical Address: 0x3dc8
+	- File Size: 496
+	- Memory Size: 496
+	- Alignment: 8
+
+[7] PT_NOTE
+	- Type: SHT_RELA
+	- Flags: 4
+	- Offset: 0x338
+	- Virtual Address: 0x338
+	- Physical Address: 0x338
+	- File Size: 48
+	- Memory Size: 48
+	- Alignment: 8
+
+[8] PT_NOTE
+	- Type: SHT_RELA
+	- Flags: 4
+	- Offset: 0x368
+	- Virtual Address: 0x368
+	- Physical Address: 0x368
+	- File Size: 68
+	- Memory Size: 68
+	- Alignment: 4
+
+[9] UNKNOWN
+	- Type: UNKNOWN
+	- Flags: 4
+	- Offset: 0x338
+	- Virtual Address: 0x338
+	- Physical Address: 0x338
+	- File Size: 48
+	- Memory Size: 48
+	- Alignment: 8
+
+[10] UNKNOWN
+	- Type: UNKNOWN
+	- Flags: 4
+	- Offset: 0x2014
+	- Virtual Address: 0x2014
+	- Physical Address: 0x2014
+	- File Size: 52
+	- Memory Size: 52
+	- Alignment: 4
+
+[11] UNKNOWN
+	- Type: UNKNOWN
+	- Flags: 6
+	- Offset: 0x00
+	- Virtual Address: 0x00
+	- Physical Address: 0x00
+	- File Size: 0
+	- Memory Size: 0
+	- Alignment: 16
+
+[12] UNKNOWN
+	- Type: UNKNOWN
+	- Flags: 4
+	- Offset: 0x2db8
+	- Virtual Address: 0x3db8
+	- Physical Address: 0x3db8
+	- File Size: 584
+	- Memory Size: 584
+	- Alignment: 1
+
+==== Text Section Analysis ====
+
+0000000000001060	endbr64
+0000000000001064	xor       ebp,ebp
+0000000000001066	mov       r9,rdx
+0000000000001069	pop       rsi
+000000000000106A	mov       rdx,rsp
+000000000000106D	and       rsp,0`FFFF`FFFF`FFFF`FFF0h
+0000000000001071	push      rax
+0000000000001072	push      rsp
+0000000000001073	xor       r8d,r8d
+0000000000001076	xor       ecx,ecx
+0000000000001078	lea       rdi,[rel 1149h]
+000000000000107F	call      qword [rel 3FD8h]
+0000000000001085	hlt
+0000000000001086	nop       word [rax+rax]
+0000000000001090	lea       rdi,[rel 4010h]
+0000000000001097	lea       rax,[rel 4010h]
+000000000000109E	cmp       rax,rdi
+00000000000010A1	je        short 0000`0000`0000`10B8h
+00000000000010A3	mov       rax,[rel 3FE0h]
+00000000000010AA	test      rax,rax
+00000000000010AD	je        short 0000`0000`0000`10B8h
+00000000000010AF	jmp       rax
+00000000000010B1	nop       dword [rax]
+00000000000010B8	ret
+00000000000010B9	nop       dword [rax]
+00000000000010C0	lea       rdi,[rel 4010h]
+00000000000010C7	lea       rsi,[rel 4010h]
+00000000000010CE	sub       rsi,rdi
+00000000000010D1	mov       rax,rsi
+00000000000010D4	shr       rsi,3Fh
+00000000000010D8	sar       rax,3
+00000000000010DC	add       rsi,rax
+00000000000010DF	sar       rsi,1
+00000000000010E2	je        short 0000`0000`0000`10F8h
+00000000000010E4	mov       rax,[rel 3FF0h]
+00000000000010EB	test      rax,rax
+00000000000010EE	je        short 0000`0000`0000`10F8h
+00000000000010F0	jmp       rax
+00000000000010F2	nop       word [rax+rax]
+00000000000010F8	ret
+00000000000010F9	nop       dword [rax]
+0000000000001100	endbr64
+0000000000001104	cmp       byte [rel 4010h],0
+000000000000110B	jne       short 0000`0000`0000`1138h
+000000000000110D	push      rbp
+000000000000110E	cmp       qword [rel 3FF8h],0
+0000000000001116	mov       rbp,rsp
+0000000000001119	je        short 0000`0000`0000`1127h
+000000000000111B	mov       rdi,[rel 4008h]
+0000000000001122	call      0000`0000`0000`1040h
+0000000000001127	call      0000`0000`0000`1090h
+000000000000112C	mov       byte [rel 4010h],1
+0000000000001133	pop       rbp
+0000000000001134	ret
+0000000000001135	nop       dword [rax]
+0000000000001138	ret
+0000000000001139	nop       dword [rax]
+0000000000001140	endbr64
+0000000000001144	jmp       0000`0000`0000`10C0h
+0000000000001149	endbr64
+000000000000114D	push      rbp
+000000000000114E	mov       rbp,rsp
+0000000000001151	lea       rax,[rel 2004h]
+0000000000001158	mov       rdi,rax
+000000000000115B	mov       eax,0
+0000000000001160	call      0000`0000`0000`1050h
+0000000000001165	mov       eax,0
+000000000000116A	pop       rbp
