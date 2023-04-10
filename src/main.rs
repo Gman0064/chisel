@@ -14,17 +14,37 @@ use std::process::exit;
 // Import modules
 mod elf;
 mod util;
+mod patcher;
 
 
 fn main() {
     // Collect our execution args
     let args: Vec<String> = env::args().collect();
+    let mut patch_mode: bool = false;
+    let mut patch_file_path: &String = &"".to_string();
 
     // Grab our filepath from our options
     if &args.len() < &2 {
         // No file given, terminate
-        println!("[Error] Please provide a filepath to open");
+        util::print_help();
         exit(0);
+    }
+
+    // Check if the arguments we have include the patching flag and file
+    if &args.len() > &2 {
+        if &args[2] == "-p" {
+            if &args.len() >= &4 {
+                patch_mode = true;
+                patch_file_path = &args[3];
+            } else {
+                util::print_help();
+                exit(0);    
+            }
+        } else {
+            // More than 1 arg but no patching flag given, terminate
+            util::print_help();
+            exit(0);
+        }
     }
 
     let file_path: &String = &args[1];
@@ -199,6 +219,18 @@ fn main() {
                         decoder = Decoder::with_ip(64, instr_bytes, ip_offset, DecoderOptions::NONE);
                     }
                 }
+
+
+                if patch_mode {
+
+                    println!("\n==== Applying Patch To Binary ====\n");
+
+                    patcher::patch_binary(
+                        bytes,
+                        &patch_file_path
+                    );
+                }
+
 
             } else {
                 println!("[Error] Could not find magic number, is this an ELF executable?")

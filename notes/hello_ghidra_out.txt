@@ -1,0 +1,37 @@
+Project File Name: 	hello
+Last Modified:	Mon Apr 10 03:28:12 CDT 2023
+Readonly:	false
+Program Name:	hello
+Language ID:	x86:LE:64:default (2.13)
+Compiler ID:	gcc
+Processor:	x86
+Endian:	Little
+Address Size:	64
+Minimum Address:	00100000
+Maximum Address:	_elfSectionHeaders::000007bf
+# of Bytes:	6481
+# of Memory Blocks:	33
+# of Instructions:	8
+# of Defined Data:	105
+# of Functions:	14
+# of Symbols:	47
+# of Data Types:	32
+# of Data Type Categories:	2
+Created With Ghidra Version:	10.2.3
+Date Created:	Mon Apr 10 03:28:12 CDT 2023
+ELF File Type:	shared object
+ELF Original Image Base:	0x0
+ELF Prelinked:	false
+ELF Required Library [   0]:	libc.so.6
+ELF Source File [   0]:	Scrt1.o
+ELF Source File [   1]:	crtstuff.c
+ELF Source File [   2]:	hello.c
+ELF Source File [   3]:	crtstuff.c
+ELF Source File [   4]:	
+Executable Format:	Executable and Linking Format (ELF)
+Executable Location:	/media/garrett/Storage/Projects/chisel/testing/hello
+Executable MD5:	45ddd8df3ccde5aa5d143ae0d00e542d
+Executable SHA256:	d448eaf9e134d840c4c3c87a9320060a763d3fac0e172818b87b7eda8e661b9a
+FSRL:	file:///media/garrett/Storage/Projects/chisel/testing/hello?MD5=45ddd8df3ccde5aa5d143ae0d00e542d
+Preferred Root Namespace Category:	
+Relocatable:	true

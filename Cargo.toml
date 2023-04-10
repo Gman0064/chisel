@@ -8,3 +8,4 @@ edition = "2018"
 
 [dependencies]
 iced-x86 = "1.18.0"
+clap = "4.2.1"

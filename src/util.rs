@@ -5,6 +5,9 @@
 //              functions.
 
 use std::mem;
+use std::io::{self, BufReader, BufRead};
+use std::fs::File;
+use std::num::ParseIntError;
 
 use crate::elf::{self, EndianType, ArchitectureType};
 
@@ -328,3 +331,26 @@ pub fn pp_program_header(header: &elf::ProgramHeader, number: i32, ph_type: &Str
     println!();
 }
 
+
+pub fn print_help() {
+    print!("Usage: chisel [EXECUTABLE] [-p] [PATCH_FILE]\n\n \
+            Options:\n \
+            \t-p\t\tToggle binary patching mode\n");
+}
+
+
+pub fn read_lines(filename: String) -> io::Lines<BufReader<File>> {
+    // Open the file in read-only mode.
+    let file = File::open(filename).unwrap(); 
+    // Read the file line by line, and return an iterator of the lines of the file.
+    return io::BufReader::new(file).lines(); 
+}
+
+// Borrowed from the following Stack Overflow post
+// https://stackoverflow.com/questions/52987181/how-can-i-convert-a-hex-string-to-a-u8-slice
+pub fn decode_hex(s: &str) -> Result<Vec<u8>, ParseIntError> {
+    (0..s.len())
+        .step_by(2)
+        .map(|i| u8::from_str_radix(&s[i..i + 2], 16))
+        .collect()
+}
