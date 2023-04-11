@@ -348,9 +348,14 @@ pub fn read_lines(filename: String) -> io::Lines<BufReader<File>> {
 
 // Borrowed from the following Stack Overflow post
 // https://stackoverflow.com/questions/52987181/how-can-i-convert-a-hex-string-to-a-u8-slice
-pub fn decode_hex(s: &str) -> Result<Vec<u8>, ParseIntError> {
+pub fn hex_to_buff(s: &str) -> Result<Vec<u8>, ParseIntError> {
     (0..s.len())
         .step_by(2)
         .map(|i| u8::from_str_radix(&s[i..i + 2], 16))
         .collect()
+}
+
+
+pub fn hex_to_int(s: &str) -> Result<usize, ParseIntError> {
+    return usize::from_str_radix(s, 16)
 }

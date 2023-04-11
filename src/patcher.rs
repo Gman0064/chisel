@@ -37,8 +37,7 @@ pub fn patch_binary(binary_contents: Vec<u8>, binary_name: String, patch_file_pa
 
     file.write_all(&bytes)
         .expect("[Error] Could not write to patched binary file");
-    
-    file.flush();
+
 }
 
 
@@ -57,11 +56,11 @@ fn parse_patch_file(patch_path: &String) -> HashMap<usize, Vec<u8>>{
         
         for line in contents {
             let unwrapped = line.unwrap();
-            if unwrapped.trim().starts_with("#") {
-
+            if unwrapped.trim().starts_with("#") || unwrapped.is_empty() {
+                //Skip
             } else {
                 let mut statement = unwrapped.split(":");
-                let address: usize = statement.next().unwrap().trim().parse::<usize>().unwrap();
+                let address: usize = util::hex_to_int(statement.next().unwrap().trim()).unwrap();
                 let data: &str = statement.next().unwrap().trim();
 
                 if !data.is_empty() {
@@ -85,7 +84,7 @@ fn parse_patch_file(patch_path: &String) -> HashMap<usize, Vec<u8>>{
                     } else {
                         // Data is comma seperated list or a single value
                         let byte_str: String = data.replace(",", "");
-                        let bytes: Vec<u8> = util::decode_hex(&byte_str).unwrap();
+                        let bytes: Vec<u8> = util::hex_to_buff(&byte_str).unwrap();
                         
                         print!("{}: ", address);
                     
