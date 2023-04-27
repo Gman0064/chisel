@@ -133,6 +133,7 @@ fn main() {
 
                 let mut program_table_offset = file_header.phoff;
                 let mut program_table_count: i32 = 0;
+                let mut pt_note_index: usize = 0;
                 let mut pt_note_offset: usize = 0;
 
                 // Iterate through number of Program Headers
@@ -148,8 +149,9 @@ fn main() {
                     // Parse the program name using the program type
                     let program_name: String = util::parse_program_segment_type(program_header.program_type);
 
-                    if (program_name == "PT_NOTE") && (pt_note_offset == 0) {
+                    if (program_name == "PT_NOTE") && (pt_note_index == 0) {
                         pt_note_offset = program_table_offset as usize;
+                        pt_note_index = i as usize;
                     }
 
                     util::pp_program_header(&program_header, program_table_count, &program_name);
@@ -162,7 +164,7 @@ fn main() {
                 let note_segment: elf::ProgramHeader = util::build_program_header(
                     bytes, 
                     pt_note_offset,
-                    0,
+                    pt_note_index as u16,
                     file_header.is_x86_64
                 );
 

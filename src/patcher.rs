@@ -29,7 +29,7 @@ pub fn patch_binary(
 
 
     // Apply patch to end of binary
-    println!("Patch data read successfully, injecting at end of binary...");
+    print!("Patch data read successfully, injecting at end of binary...");
 
     let injection_offset: usize = program_data.len();
     let injection_size: usize = patch_data.len();
@@ -37,22 +37,22 @@ pub fn patch_binary(
 
     program_data.extend_from_slice(patch_data);
 
-    print!("Done!");
+    println!("Done!");
 
 
     // Locate a note segment
-    println!("Pulling .note.ABI-tag segment data...");
+    print!("Pulling .note.ABI-tag segment data...");
     let note_section: &elf::SectionHeader = section_header_map.get(".note.ABI-tag")
         .expect("[Error] Failed to pull ABI-tag section from binary!");
-    print!("Done!\n");
+    println!("Done!\n");
     
     println!("Note section address: {:#04x}", note_section.addr);
     println!("Note section offset: {:#04x}", note_section.offset);
-    println!("Note section size: {}", note_section.size);
-    println!("");
+    println!("Note section size: {}\n", note_section.size);
+    
     println!("Injected address: {:#04x}", injection_addr);
     println!("Injected section offset: {:#04x}", injection_offset);
-    println!("Injected section size: {}", injection_size);
+    println!("Injected section size: {}\n", injection_size);
 
 
     // Rewrite the section header
@@ -62,6 +62,8 @@ pub fn patch_binary(
     injected_section.addr = injection_addr as u64;
     injected_section.offset = injection_offset as u64;
     injected_section.size = injection_size as u64;
+    injected_section.addralign = 16;
+    injected_section.flags = 6;
     
     util::overwrite_section_header(
         &mut program_data,
@@ -73,8 +75,7 @@ pub fn patch_binary(
     );
 
 
-    // 
-    // Rewrite the section header
+    // Rewrite the program segment
     let mut injected_segment: elf::ProgramHeader = elf::ProgramHeader::from(note_segment.clone());
 
     injected_segment.program_type = 1;
@@ -88,16 +89,15 @@ pub fn patch_binary(
 
     util::overwrite_segment_header(
         &mut program_data,
-        file_header.shoff as usize,
-        file_header.shentsize as usize,
-        injected_section.id as usize,
-        &injected_section,
+        file_header.phoff as usize,
+        file_header.phentsize as usize,
+        injected_segment.id as usize,
+        &injected_segment,
         file_header.is_x86_64
     );
 
 
-
-
+    // Rewrite the program entrypoint
     util::overwrite_entrypoint(&mut program_data, injection_offset);
 
 

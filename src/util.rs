@@ -66,44 +66,64 @@ pub fn build_program_header(data: &Vec<u8>, phoffset: usize, id: u16, is_x86_64:
 }
 
 
-pub fn overwrite_segment_header(program_data: &mut Vec<u8>,
-    stoffset: usize,
-    shentsize: usize,
-    shentidx: usize,
-    new_section: &elf::SectionHeader,
+pub fn overwrite_segment_header(
+    program_data: &mut Vec<u8>,
+    phoffset: usize,
+    phentsize: usize,
+    phentidx: usize,
+    new_segment: &elf::ProgramHeader,
     is_x86_64: bool) {
 
-// Cast the supplied is_x86_64 bool to an array offset
-// 0 : x86
-// 1 : x64
-let arch: usize = is_x86_64.into();
+    // Cast the supplied is_x86_64 bool to an array offset
+    // 0 : x86
+    // 1 : x64
+    let arch: usize = is_x86_64.into();
 
-println!("stoffset {}", stoffset);
-println!("shentsize {}", shentsize);
-println!("shentidx {}", shentidx);
+    println!("phoffset {}", phoffset);
+    println!("phentsize {}", phentsize);
+    println!("phentidx {}", phentidx);
 
-let section_addr_offset: usize = stoffset + (shentsize * shentidx) + elf::SH_ADDR_OFFSET[arch] as usize;
-let section_offset_offset: usize = stoffset + (shentsize * shentidx) + elf::SH_OFFSET_OFFSET[arch] as usize;
-let section_size_offset: usize = stoffset + (shentsize * shentidx) + elf::SH_SIZE_OFFSET[arch] as usize;
-let section_type_offset: usize = stoffset + (shentsize * shentidx) + elf::SH_TYPE_OFFSET as usize;
+    let segment_type_offset: usize = phoffset + (phentsize * phentidx) + elf::PH_TYPE_OFFSET as usize;
+    let segment_offset_offset: usize = phoffset + (phentsize * phentidx) + elf::PH_OFFSET_OFFSET[arch] as usize;
+    let segment_vaddr_offset: usize = phoffset + (phentsize * phentidx) + elf::PH_VADDR_OFFSET[arch] as usize;
+    let segment_paddr_offset: usize = phoffset + (phentsize * phentidx) + elf::PH_PADDR_OFFSET[arch] as usize;
+    let segment_filesz_offset: usize = phoffset + (phentsize * phentidx) + elf::PH_FILESZ_OFFSET[arch] as usize;
+    let segment_memsz_offset: usize = phoffset + (phentsize * phentidx) + elf::PH_MEMSZ_OFFSET[arch] as usize;
+    let segment_flags_offset: usize = phoffset + (phentsize * phentidx) + elf::PH_FLAGS_OFFSET[arch] as usize;
+    let segment_align_offset: usize = phoffset + (phentsize * phentidx) + elf::PH_ALIGN_OFFSET[arch] as usize;
 
-program_data[section_addr_offset..section_addr_offset+8].copy_from_slice(
-&new_section.addr.to_ne_bytes().to_vec());
-println!("Overwriting section addr with {:#04x}", new_section.addr);
+    program_data[segment_type_offset..segment_type_offset+4].copy_from_slice(
+            &new_segment.program_type.to_ne_bytes().to_vec());
+    println!("Overwriting segment type with {:#04x}", new_segment.program_type);
 
-program_data[section_offset_offset..section_offset_offset+8].copy_from_slice(
-&new_section.offset.to_ne_bytes().to_vec());
-println!("Overwriting section offset with {:#04x}", new_section.offset as usize);
+    program_data[segment_offset_offset..segment_offset_offset+8].copy_from_slice(
+        &new_segment.offset.to_ne_bytes().to_vec());
+    println!("Overwriting segment offset with {:#04x}", new_segment.offset);
 
-program_data[section_size_offset..section_size_offset+8].copy_from_slice(
-&new_section.size.to_ne_bytes().to_vec());
-println!("Overwriting section size with {:#04x}", new_section.size as usize);
+    program_data[segment_vaddr_offset..segment_vaddr_offset+8].copy_from_slice(
+        &new_segment.vaddr.to_ne_bytes().to_vec());
+    println!("Overwriting segment vaddr with {:#04x}", new_segment.vaddr);
 
-program_data[section_type_offset..section_type_offset+4].copy_from_slice(
-&new_section.section_type.to_ne_bytes().to_vec());
-println!("Overwriting section type with {:#04x}", new_section.section_type as usize);
+    program_data[segment_paddr_offset..segment_paddr_offset+8].copy_from_slice(
+        &new_segment.paddr.to_ne_bytes().to_vec());
+    println!("Overwriting segment paddr with {:#04x}", new_segment.paddr);
 
-// return section_header;
+    program_data[segment_filesz_offset..segment_filesz_offset+8].copy_from_slice(
+        &new_segment.filesz.to_ne_bytes().to_vec());
+    println!("Overwriting segment filesz with {:#04x}", new_segment.filesz);
+
+    program_data[segment_memsz_offset..segment_memsz_offset+8].copy_from_slice(
+        &new_segment.memsz.to_ne_bytes().to_vec());
+    println!("Overwriting segment memsz with {:#04x}", new_segment.memsz);
+
+    program_data[segment_flags_offset..segment_flags_offset+4].copy_from_slice(
+        &new_segment.flags.to_ne_bytes().to_vec());
+    println!("Overwriting segment flag with {:#04x}", new_segment.flags);
+
+    program_data[segment_align_offset..segment_align_offset+8].copy_from_slice(
+        &new_segment.align.to_ne_bytes().to_vec());
+    println!("Overwriting segment alignment with {:#04x}\n", new_segment.align);
+
 }
 
 
@@ -152,6 +172,8 @@ pub fn overwrite_section_header(program_data: &mut Vec<u8>,
     let section_offset_offset: usize = stoffset + (shentsize * shentidx) + elf::SH_OFFSET_OFFSET[arch] as usize;
     let section_size_offset: usize = stoffset + (shentsize * shentidx) + elf::SH_SIZE_OFFSET[arch] as usize;
     let section_type_offset: usize = stoffset + (shentsize * shentidx) + elf::SH_TYPE_OFFSET as usize;
+    let section_flag_offset: usize = stoffset + (shentsize * shentidx) + elf::SH_FLAGS_OFFSET as usize;
+    let section_align_offset: usize = stoffset + (shentsize * shentidx) + elf::SH_ADDRALIGN_OFFSET[arch] as usize;
 
     program_data[section_addr_offset..section_addr_offset+8].copy_from_slice(
                 &new_section.addr.to_ne_bytes().to_vec());
@@ -169,6 +191,14 @@ pub fn overwrite_section_header(program_data: &mut Vec<u8>,
         &new_section.section_type.to_ne_bytes().to_vec());
     println!("Overwriting section type with {:#04x}", new_section.section_type as usize);
 
+    program_data[section_flag_offset..section_flag_offset+8].copy_from_slice(
+        &new_section.flags.to_ne_bytes().to_vec());
+    println!("Overwriting section flags with {:#04x}", new_section.flags as usize);
+
+    program_data[section_align_offset..section_align_offset+8].copy_from_slice(
+        &new_section.addralign.to_ne_bytes().to_vec());
+    println!("Overwriting section address alignment with {:#04x}\n", new_section.addralign as usize);
+
     // return section_header;
 }
 
@@ -180,6 +210,7 @@ pub fn overwrite_entrypoint(program_data: &mut Vec<u8>,
     program_data[offset..offset+8].copy_from_slice(
         &new_entry_point.to_ne_bytes().to_vec()
     );
+    println!("Overwriting program entrypoint with {:#04x}\n", new_entry_point as usize);
 }
 
 
@@ -403,6 +434,7 @@ pub fn pp_section_header(header: &elf::SectionHeader, number: i32, name: &String
     println!("[{}] {}", number, name);
     println!("\t- Type: {}", parse_section_type(header.section_type));
     println!("\t- Flags: {}", parse_section_flags(header.flags));
+    println!("\t- Flags (Value): {}", header.flags);
     println!("\t- Address: {:#04x}", header.section_type);
     println!("\t- Offset: {:#04x}", header.section_type);
     println!("\t- Link Index: {}", header.link);
