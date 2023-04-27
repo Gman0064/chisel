@@ -5,9 +5,9 @@
 //              functions.
 
 use std::mem;
-use std::io::{self, BufReader, BufRead};
-use std::fs::File;
-use std::num::ParseIntError;
+// use std::io::{self, BufReader, BufRead};
+// use std::fs::File;
+// use std::num::ParseIntError;
 
 use crate::elf::{self, EndianType, ArchitectureType};
 
@@ -43,7 +43,7 @@ pub fn build_file_header(data: &Vec<u8>) -> elf::FileHeader {
 }
 
 
-pub fn build_program_header(data: &Vec<u8>, phoffset: usize, is_x86_64: bool) -> elf::ProgramHeader {
+pub fn build_program_header(data: &Vec<u8>, phoffset: usize, id: u16, is_x86_64: bool) -> elf::ProgramHeader {
 
     // Cast the supplied is_x86_64 bool to an array offset
     // 0 : x86
@@ -51,6 +51,7 @@ pub fn build_program_header(data: &Vec<u8>, phoffset: usize, is_x86_64: bool) ->
     let arch: usize = is_x86_64.into();
 
     let program_header: elf::ProgramHeader = elf::ProgramHeader {
+        id: id,
         program_type: u32_from_buffer(data, phoffset + elf::PH_TYPE_OFFSET as usize),
         flags: u32_from_buffer(data, phoffset + elf::PH_FLAGS_OFFSET[arch] as usize),
         offset: u64_from_buffer(data, phoffset + elf::PH_OFFSET_OFFSET[arch] as usize),
@@ -65,7 +66,48 @@ pub fn build_program_header(data: &Vec<u8>, phoffset: usize, is_x86_64: bool) ->
 }
 
 
-pub fn build_section_header(data: &Vec<u8>, shoffset: usize, is_x86_64: bool) -> elf::SectionHeader {
+pub fn overwrite_segment_header(program_data: &mut Vec<u8>,
+    stoffset: usize,
+    shentsize: usize,
+    shentidx: usize,
+    new_section: &elf::SectionHeader,
+    is_x86_64: bool) {
+
+// Cast the supplied is_x86_64 bool to an array offset
+// 0 : x86
+// 1 : x64
+let arch: usize = is_x86_64.into();
+
+println!("stoffset {}", stoffset);
+println!("shentsize {}", shentsize);
+println!("shentidx {}", shentidx);
+
+let section_addr_offset: usize = stoffset + (shentsize * shentidx) + elf::SH_ADDR_OFFSET[arch] as usize;
+let section_offset_offset: usize = stoffset + (shentsize * shentidx) + elf::SH_OFFSET_OFFSET[arch] as usize;
+let section_size_offset: usize = stoffset + (shentsize * shentidx) + elf::SH_SIZE_OFFSET[arch] as usize;
+let section_type_offset: usize = stoffset + (shentsize * shentidx) + elf::SH_TYPE_OFFSET as usize;
+
+program_data[section_addr_offset..section_addr_offset+8].copy_from_slice(
+&new_section.addr.to_ne_bytes().to_vec());
+println!("Overwriting section addr with {:#04x}", new_section.addr);
+
+program_data[section_offset_offset..section_offset_offset+8].copy_from_slice(
+&new_section.offset.to_ne_bytes().to_vec());
+println!("Overwriting section offset with {:#04x}", new_section.offset as usize);
+
+program_data[section_size_offset..section_size_offset+8].copy_from_slice(
+&new_section.size.to_ne_bytes().to_vec());
+println!("Overwriting section size with {:#04x}", new_section.size as usize);
+
+program_data[section_type_offset..section_type_offset+4].copy_from_slice(
+&new_section.section_type.to_ne_bytes().to_vec());
+println!("Overwriting section type with {:#04x}", new_section.section_type as usize);
+
+// return section_header;
+}
+
+
+pub fn build_section_header(data: &Vec<u8>, stoffset: usize, id: u16, is_x86_64: bool) -> elf::SectionHeader {
 
     // Cast the supplied is_x86_64 bool to an array offset
     // 0 : x86
@@ -73,19 +115,71 @@ pub fn build_section_header(data: &Vec<u8>, shoffset: usize, is_x86_64: bool) ->
     let arch: usize = is_x86_64.into();
 
     let section_header: elf::SectionHeader = elf::SectionHeader {
-        name: u32_from_buffer(data, shoffset + elf::SH_NAME_OFFSET as usize),
-        section_type: u32_from_buffer(data, shoffset + elf::SH_TYPE_OFFSET as usize),
-        flags: u64_from_buffer(data, shoffset + elf::SH_FLAGS_OFFSET as usize),
-        addr: u64_from_buffer(data, shoffset + elf::SH_ADDR_OFFSET[arch] as usize),
-        offset: u64_from_buffer(data, shoffset + elf::SH_OFFSET_OFFSET[arch] as usize),
-        size: u64_from_buffer(data, shoffset + elf::SH_SIZE_OFFSET[arch] as usize),
-        link: u32_from_buffer(data, shoffset + elf::SH_LINK_OFFSET[arch] as usize),
-        info: u32_from_buffer(data, shoffset + elf::SH_INFO_OFFSET[arch] as usize),
-        addralign: u64_from_buffer(data, shoffset + elf::SH_ADDRALIGN_OFFSET[arch] as usize),
-        entsize: u64_from_buffer(data, shoffset + elf::SH_ENTSIZE_OFFSET[arch] as usize)
+        id: id,
+        name_idx: u32_from_buffer(data, stoffset + elf::SH_NAME_OFFSET as usize),
+        section_type: u32_from_buffer(data, stoffset + elf::SH_TYPE_OFFSET as usize),
+        flags: u64_from_buffer(data, stoffset + elf::SH_FLAGS_OFFSET as usize),
+        addr: u64_from_buffer(data, stoffset + elf::SH_ADDR_OFFSET[arch] as usize),
+        offset: u64_from_buffer(data, stoffset + elf::SH_OFFSET_OFFSET[arch] as usize),
+        size: u64_from_buffer(data, stoffset + elf::SH_SIZE_OFFSET[arch] as usize),
+        link: u32_from_buffer(data, stoffset + elf::SH_LINK_OFFSET[arch] as usize),
+        info: u32_from_buffer(data, stoffset + elf::SH_INFO_OFFSET[arch] as usize),
+        addralign: u64_from_buffer(data, stoffset + elf::SH_ADDRALIGN_OFFSET[arch] as usize),
+        entsize: u64_from_buffer(data, stoffset + elf::SH_ENTSIZE_OFFSET[arch] as usize)
     };
 
     return section_header;
+}
+
+
+pub fn overwrite_section_header(program_data: &mut Vec<u8>,
+                                stoffset: usize,
+                                shentsize: usize,
+                                shentidx: usize,
+                                new_section: &elf::SectionHeader,
+                                is_x86_64: bool) {
+
+    // Cast the supplied is_x86_64 bool to an array offset
+    // 0 : x86
+    // 1 : x64
+    let arch: usize = is_x86_64.into();
+
+    println!("stoffset {}", stoffset);
+    println!("shentsize {}", shentsize);
+    println!("shentidx {}", shentidx);
+
+    let section_addr_offset: usize = stoffset + (shentsize * shentidx) + elf::SH_ADDR_OFFSET[arch] as usize;
+    let section_offset_offset: usize = stoffset + (shentsize * shentidx) + elf::SH_OFFSET_OFFSET[arch] as usize;
+    let section_size_offset: usize = stoffset + (shentsize * shentidx) + elf::SH_SIZE_OFFSET[arch] as usize;
+    let section_type_offset: usize = stoffset + (shentsize * shentidx) + elf::SH_TYPE_OFFSET as usize;
+
+    program_data[section_addr_offset..section_addr_offset+8].copy_from_slice(
+                &new_section.addr.to_ne_bytes().to_vec());
+    println!("Overwriting section addr with {:#04x}", new_section.addr);
+
+    program_data[section_offset_offset..section_offset_offset+8].copy_from_slice(
+        &new_section.offset.to_ne_bytes().to_vec());
+    println!("Overwriting section offset with {:#04x}", new_section.offset as usize);
+
+    program_data[section_size_offset..section_size_offset+8].copy_from_slice(
+        &new_section.size.to_ne_bytes().to_vec());
+    println!("Overwriting section size with {:#04x}", new_section.size as usize);
+
+    program_data[section_type_offset..section_type_offset+4].copy_from_slice(
+        &new_section.section_type.to_ne_bytes().to_vec());
+    println!("Overwriting section type with {:#04x}", new_section.section_type as usize);
+
+    // return section_header;
+}
+
+
+pub fn overwrite_entrypoint(program_data: &mut Vec<u8>,
+                           new_entry_point: usize) {
+    
+    let offset: usize = elf::ENTRYPOINT_OFFSET as usize;
+    program_data[offset..offset+8].copy_from_slice(
+        &new_entry_point.to_ne_bytes().to_vec()
+    );
 }
 
 
@@ -339,23 +433,28 @@ pub fn print_help() {
 }
 
 
-pub fn read_lines(filename: String) -> io::Lines<BufReader<File>> {
-    // Open the file in read-only mode.
-    let file = File::open(filename).unwrap(); 
-    // Read the file line by line, and return an iterator of the lines of the file.
-    return io::BufReader::new(file).lines(); 
-}
+// pub fn read_lines(filename: String) -> io::Lines<BufReader<File>> {
+//     // Open the file in read-only mode.
+//     let file = File::open(filename).unwrap(); 
+//     // Read the file line by line, and return an iterator of the lines of the file.
+//     return io::BufReader::new(file).lines(); 
+// }
 
-// Borrowed from the following Stack Overflow post
-// https://stackoverflow.com/questions/52987181/how-can-i-convert-a-hex-string-to-a-u8-slice
-pub fn hex_to_buff(s: &str) -> Result<Vec<u8>, ParseIntError> {
-    (0..s.len())
-        .step_by(2)
-        .map(|i| u8::from_str_radix(&s[i..i + 2], 16))
-        .collect()
-}
+// // Borrowed from the following Stack Overflow post
+// // https://stackoverflow.com/questions/52987181/how-can-i-convert-a-hex-string-to-a-u8-slice
+// pub fn hex_to_buff(s: &str) -> Result<Vec<u8>, ParseIntError> {
+//     (0..s.len())
+//         .step_by(2)
+//         .map(|i| u8::from_str_radix(&s[i..i + 2], 16))
+//         .collect()
+// }
 
 
-pub fn hex_to_int(s: &str) -> Result<usize, ParseIntError> {
-    return usize::from_str_radix(s, 16)
-}
+// pub fn hex_to_usize(s: &str) -> Result<usize, ParseIntError> {
+//     return usize::from_str_radix(s, 16)
+// }
+
+
+// pub fn usize_to_hex(i: usize) -> String {
+//     return format!("{:X}", i).to_string();
+// }

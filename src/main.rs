@@ -20,7 +20,7 @@ mod patcher;
 fn main() {
     // Collect our execution args
     let args: Vec<String> = env::args().collect();
-    let mut patch_mode: bool = false;
+    let mut inject_mode: bool = false;
     let mut patch_file_path: &String = &"".to_string();
 
     // Grab our filepath from our options
@@ -34,7 +34,7 @@ fn main() {
     if &args.len() > &2 {
         if &args[2] == "-p" {
             if &args.len() >= &4 {
-                patch_mode = true;
+                inject_mode = true;
                 patch_file_path = &args[3];
             } else {
                 util::print_help();
@@ -87,6 +87,7 @@ fn main() {
                 let shstrtab_section: elf::SectionHeader = util::build_section_header(
                     bytes,
                     shstrtab_offset as usize,
+                    file_header.shstrndx,
                     file_header.is_x86_64
                 );
 
@@ -104,17 +105,18 @@ fn main() {
                 let mut section_table_count: i32 = 0;
 
                 // Iterate through number of section headers
-                for _ in 0..file_header.shnum {
+                for i in 0..file_header.shnum {
 
                     // Build section header data structure
                     let section_header: elf::SectionHeader = util::build_section_header(
                         bytes, 
                         section_table_offset as usize,
+                        i,
                         file_header.is_x86_64
                     );
 
                     // Determine the section name for each section using the shstrtab data
-                    let section_name: String = util::parse_section_name(&shstrtab_data, section_header.name as usize);
+                    let section_name: String = util::parse_section_name(&shstrtab_data, section_header.name_idx as usize);
 
                     util::pp_section_header(&section_header, section_table_count, &section_name);
 
@@ -131,18 +133,24 @@ fn main() {
 
                 let mut program_table_offset = file_header.phoff;
                 let mut program_table_count: i32 = 0;
+                let mut pt_note_offset: usize = 0;
 
                 // Iterate through number of Program Headers
-                for _ in 0..file_header.phnum {
+                for i in 0..file_header.phnum {
                     // Build Program Header data structure
                     let program_header: elf::ProgramHeader = util::build_program_header(
                         bytes, 
                         program_table_offset as usize,
+                        i,
                         file_header.is_x86_64
                     );
 
                     // Parse the program name using the program type
                     let program_name: String = util::parse_program_segment_type(program_header.program_type);
+
+                    if (program_name == "PT_NOTE") && (pt_note_offset == 0) {
+                        pt_note_offset = program_table_offset as usize;
+                    }
 
                     util::pp_program_header(&program_header, program_table_count, &program_name);
 
@@ -150,6 +158,13 @@ fn main() {
                     program_table_offset += file_header.phentsize as u64;
                     program_table_count += 1;
                 }
+
+                let note_segment: elf::ProgramHeader = util::build_program_header(
+                    bytes, 
+                    pt_note_offset,
+                    0,
+                    file_header.is_x86_64
+                );
 
 
                 // Now that we have all the sections, spit out the .text section and start a linear disassembly
@@ -221,14 +236,17 @@ fn main() {
                 }
 
 
-                if patch_mode {
+                if inject_mode {
 
-                    println!("\n==== Applying Patch To Binary ====\n");
+                    println!("\n==== Injecting Payload To Binary ====\n");
 
                     patcher::patch_binary(
                         bytes.to_vec(),
                         file_path.to_string(),
-                        &patch_file_path
+                        &patch_file_path,
+                        &file_header,
+                        section_table_map,
+                        note_segment
                     );
                 }
 
@@ -238,7 +256,7 @@ fn main() {
             }
         }
     } else {
-        println!("[Error] '{}' does not exist", file_path);
+        println!("[Error] File '{}' does not exist", file_path);
         exit(-1);
     }
 

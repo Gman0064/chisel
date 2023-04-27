@@ -121,8 +121,9 @@ pub struct FileHeader {
 }
 
 
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 pub struct ProgramHeader {
+    pub id: u16,
     pub program_type: u32,
     pub flags: u32,
     pub offset: u64,
@@ -134,9 +135,10 @@ pub struct ProgramHeader {
 }
 
 
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 pub struct SectionHeader {
-    pub name: u32,
+    pub id: u16,
+    pub name_idx: u32,
     pub section_type: u32,
     pub flags: u64,
     pub addr: u64,
