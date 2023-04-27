@@ -26,8 +26,10 @@ $ cd chisel && cargo install
 
 ## Usage
 
-The following format can be used to pass a binary to `chisel` to analyze. The repository also includes a few binaries in `./testing/` as included examples.
+The following format can be used to pass a binary to `chisel` to analyze. The repository also includes a few binaries in `./testing/` as included examples. `chisel` also supports binary rewriting/patching by specifying the `-p` flag along with a `.bin` file of assembly code you would like to inject.
 
 ```shell
-$ chisel [path to ELF executable]
+$ chisel [EXECUTABLE] [-p] [PATCH_FILE]
 ```
+
+> Binary patching is currently very buggy and may cause segmentation faults with the patched binary
